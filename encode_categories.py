@@ -1,12 +1,69 @@
+import pandas as pd
+import numpy as np
+
 from sklearn.preprocessing import OneHotEncoder
+from scipy.sparse import issparse
 
+from gen_data import generate_fake_data
 
+#One-hot Encoder
+def one_hot_encoder(dataframe : pd.DataFrame):
+    encoder = OneHotEncoder(sparse_output=False)
+    encoded_array = encoder.fit_transform(dataframe[['Color']])
 
+    transformed_df = pd.DataFrame(encoded_array, columns=encoder.get_feature_names_out(['Color']))
 
+    return transformed_df
 
+def sparse_vs_dense_df(data):
+    sparse_encoder = OneHotEncoder(sparse_output=True)
+    dense_encoder = OneHotEncoder(sparse_output=False)
 
+    sparse_array = sparse_encoder.fit_transform(data)
+    dense_array = dense_encoder.fit_transform(data)
 
+    if issparse(sparse_array):
+        sparse_array = sparse_array.toarray() # type: ignore
+    
+    sparse_df = pd.DataFrame(
+        sparse_array,
+        columns=sparse_encoder.get_feature_names_out()
+    )
+    dense_df = pd.DataFrame(
+        dense_array,
+        columns=dense_encoder.get_feature_names_out()
+    )
+
+    return sparse_df, dense_df
+
+#Label Encoding
+
+#Frequency / Count Encoding
+
+#Target / Mean Encoding
+
+#Binary Encoding
+
+#Hash Encoding
+
+#Embeddings (Deep Learning)
 
 
 if __name__ == "__main__":
+    fake_data = generate_fake_data(sample_size=30)
+
+    encoded_data = one_hot_encoder(fake_data)
+
+    #Uncomment to show the fake vs encoded.
+    #print(fake_data.head())
+    #print(encoded_data.head())
+
+    array = fake_data[["Color"]]
+
+    sparse_df, dense_df = sparse_vs_dense_df(array)
+
+    #There are no differences between sparse and dense when showing. But some conversion is needed in the function.
+    #print(sparse_df.head())
+    #print(dense_df.head())
+
     
