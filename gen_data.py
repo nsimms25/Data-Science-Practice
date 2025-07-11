@@ -3,7 +3,7 @@ import numpy as np
 
 def generate_fake_data(sample_size : int = 20) -> pd.DataFrame:
     """
-    This is a function to create some fake data to practice cateogory encoding
+    This is a function to create some fake data to practice category encoding
 
     Args:
         sample_size (int): number of random samples to create in the DataFrame.
