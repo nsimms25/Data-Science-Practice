@@ -47,8 +47,12 @@ def label_encoder(dataframe: pd.DataFrame):
 
     return transformed_df
 
-
 #Frequency / Count Encoding
+def count_encoder(dataframe: pd.DataFrame, column: str):
+    count = dataframe[column].value_counts().to_dict()
+    dataframe[f"count_{column}"] = dataframe[column].map(count)
+
+    return dataframe
 
 #Target / Mean Encoding
 
@@ -61,6 +65,7 @@ def label_encoder(dataframe: pd.DataFrame):
 
 if __name__ == "__main__":
     fake_data = generate_fake_data(sample_size=30)
+    print(fake_data)
 
     encoded_data = one_hot_encoder(fake_data)
     #Uncomment to show the fake vs encoded.
@@ -77,5 +82,11 @@ if __name__ == "__main__":
     #Uncomment to show the fake vs encoded.
     #print(fake_data.head())
     #print(label_array.head())
+
+    higher_ord_data = fake_data
+    count_enc_data = count_encoder(dataframe=higher_ord_data, column="City")
+    #Uncomment to show the count of City within the DataFrame.
+    #print(count_enc_data.head())
+    #print(fake_data.head())
 
     
