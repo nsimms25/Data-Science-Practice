@@ -55,8 +55,14 @@ def count_encoder(dataframe: pd.DataFrame, column: str):
     return dataframe
 
 #Target / Mean Encoding
+def mean_encoder(dataframe: pd.DataFrame, column: str, target: str):
+    mean = dataframe.groupby(column)[target].mean().to_dict()
+    dataframe[f"{column}_MeanEncode"] = dataframe[column].map(mean)
+
+    return dataframe
 
 #Binary Encoding
+
 
 #Hash Encoding
 
@@ -65,7 +71,7 @@ def count_encoder(dataframe: pd.DataFrame, column: str):
 
 if __name__ == "__main__":
     fake_data = generate_fake_data(sample_size=30)
-    print(fake_data)
+    print(fake_data.head())
 
     encoded_data = one_hot_encoder(fake_data)
     #Uncomment to show the fake vs encoded.
@@ -86,7 +92,9 @@ if __name__ == "__main__":
     higher_ord_data = fake_data
     count_enc_data = count_encoder(dataframe=higher_ord_data, column="City")
     #Uncomment to show the count of City within the DataFrame.
-    #print(count_enc_data.head())
     #print(fake_data.head())
+    #print(count_enc_data.head())
 
-    
+    mean_enc_data = mean_encoder(fake_data, "Color", "Purchased")
+    #Uncomment to show the mean of purchased per color.
+    print(mean_enc_data.head())
