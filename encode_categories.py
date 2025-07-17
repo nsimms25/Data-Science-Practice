@@ -61,6 +61,20 @@ def mean_encoder(dataframe: pd.DataFrame, column: str, target: str):
 
     return dataframe
 
+#Smoothed Mean Encoding
+def smooth_mean_encoder(dataframe: pd.DataFrame, column: str, target: str, smoothing=10):
+    global_mean = dataframe[target].mean()
+
+    aggregate = dataframe.groupby(column)[target].aggregate(["mean", "count"])
+    means = aggregate['mean']
+    counts = aggregate['count']
+
+    smooth = (counts * means + smoothing * global_mean) / (counts + smoothing)
+
+    dataframe[f"{column}_SmoothMeanEncode"] = dataframe[column].map(smooth)
+
+    return dataframe
+
 #Binary Encoding
 
 
@@ -97,4 +111,8 @@ if __name__ == "__main__":
 
     mean_enc_data = mean_encoder(fake_data, "Color", "Purchased")
     #Uncomment to show the mean of purchased per color.
-    print(mean_enc_data.head())
+    #print(mean_enc_data.head())
+
+    smooth_mean_enc_data = smooth_mean_encoder(fake_data, 'Color', 'Purchased', smoothing=10)
+    #Uncomment to show the smoothed result of the purchase per color.
+    #print(fake_data.head())
