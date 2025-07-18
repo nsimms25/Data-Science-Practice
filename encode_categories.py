@@ -5,6 +5,9 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder
 from scipy.sparse import issparse
 
+import torch
+import torch.nn as nn
+
 import category_encoders as ce
 
 from gen_data import generate_fake_data
@@ -106,7 +109,23 @@ def hash_encoder(dataframe: pd.DataFrame, column: str, n_components: int= 6):
     return encoded_data
 
 #Embeddings (Deep Learning)
+def deep_learn_encoder(dataframe: pd.DataFrame, column: str, embedding_dim: int = 4):
+    label_encoder = LabelEncoder()
+    dataframe["Color_encoded"] = label_encoder.fit_transform(dataframe["Color"])
 
+    color_tensor = torch.tensor(dataframe["Color_encoded"].values, dtype=torch.long)
+
+    num_categories = dataframe["Color_encoded"].nunique()
+    embedding_layer = nn.Embedding(num_categories, embedding_dim)
+
+    embedded_data = embedding_layer(color_tensor)
+
+    embedded_df = pd.DataFrame(
+        embedded_data.detach().numpy(),
+        columns=[f"{column}_embed_{i}" for i in range(embedding_dim)]
+    )
+
+    return embedded_df
 
 if __name__ == "__main__":
     fake_data = generate_fake_data(sample_size=30)
@@ -151,7 +170,6 @@ if __name__ == "__main__":
     #Uncomment to show the hash encoder result.
     #print(fake_data.head())
     #print(hash_encoded.head())
-    
 
-
-
+    deep_learned_df = deep_learn_encoder(dataframe=fake_data, column="Color")
+    print(deep_learned_df)
