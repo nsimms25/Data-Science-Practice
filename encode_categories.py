@@ -76,9 +76,24 @@ def smooth_mean_encoder(dataframe: pd.DataFrame, column: str, target: str, smoot
     return dataframe
 
 #Binary Encoding
+def binary_encoder(dataframe: pd.DataFrame, column: str):
+    categories = dataframe[column].astype("category")
+    category_codes = categories.cat.codes
 
+    max_bits = int(np.floor(np.log2(category_codes.max())) + 1)
+    binary_cols = (
+        category_codes
+        .apply(lambda x: format(x, f'0{max_bits}b'))  # fixed-length binary
+        .apply(lambda x: pd.Series(list(x)))
+        .astype(int)
+    )
+
+    binary_cols.columns = [f"{column}_bin_{i}" for i in range(binary_cols.shape[1])]
+
+    return pd.concat([dataframe.reset_index(drop=True), binary_cols], axis=1).drop(columns=[column])
 
 #Hash Encoding
+
 
 #Embeddings (Deep Learning)
 
@@ -103,7 +118,7 @@ if __name__ == "__main__":
     #print(fake_data.head())
     #print(label_array.head())
 
-    higher_ord_data = fake_data
+    higher_ord_data = fake_data.copy()
     count_enc_data = count_encoder(dataframe=higher_ord_data, column="City")
     #Uncomment to show the count of City within the DataFrame.
     #print(fake_data.head())
@@ -116,3 +131,11 @@ if __name__ == "__main__":
     smooth_mean_enc_data = smooth_mean_encoder(fake_data, 'Color', 'Purchased', smoothing=10)
     #Uncomment to show the smoothed result of the purchase per color.
     #print(fake_data.head())
+
+    bin_data = binary_encoder(fake_data, column="City")
+    #Uncomment to show the binary encoder result.
+    print(fake_data.head())
+    print(bin_data.head())
+
+
+
