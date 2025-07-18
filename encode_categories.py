@@ -5,6 +5,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder
 from scipy.sparse import issparse
 
+import category_encoders as ce
+
 from gen_data import generate_fake_data
 
 #One-hot Encoder
@@ -83,7 +85,7 @@ def binary_encoder(dataframe: pd.DataFrame, column: str):
     max_bits = int(np.floor(np.log2(category_codes.max())) + 1)
     binary_cols = (
         category_codes
-        .apply(lambda x: format(x, f'0{max_bits}b'))  # fixed-length binary
+        .apply(lambda x: format(x, f'0{max_bits}b'))
         .apply(lambda x: pd.Series(list(x)))
         .astype(int)
     )
@@ -93,7 +95,15 @@ def binary_encoder(dataframe: pd.DataFrame, column: str):
     return pd.concat([dataframe.reset_index(drop=True), binary_cols], axis=1).drop(columns=[column])
 
 #Hash Encoding
+def hash_encoder(dataframe: pd.DataFrame, column: str, n_components: int= 6):
+    encoder = ce.HashingEncoder(cols=[column], n_components=n_components, return_df=True)
+    encoded_data = encoder.fit_transform(dataframe)
 
+    #This is the avoid a pylance error, truly ensures a DataFrame is returned. 
+    if not isinstance(encoded_data, pd.DataFrame):
+        encoded_data = pd.DataFrame(encoded_data)
+
+    return encoded_data
 
 #Embeddings (Deep Learning)
 
@@ -134,8 +144,14 @@ if __name__ == "__main__":
 
     bin_data = binary_encoder(fake_data, column="City")
     #Uncomment to show the binary encoder result.
-    print(fake_data.head())
-    print(bin_data.head())
+    #print(fake_data.head())
+    #print(bin_data.head())
+
+    hash_encoded = hash_encoder(fake_data, column="City")
+    #Uncomment to show the hash encoder result.
+    #print(fake_data.head())
+    #print(hash_encoded.head())
+    
 
 
 
